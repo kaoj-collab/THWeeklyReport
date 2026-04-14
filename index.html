@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TH 2026/4/6–4/12 營運分析週報（v2 指標定義修正版）</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Noto+Sans+TC:wght@300;400;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0c10;
+    --surface: #111318;
+    --surface2: #181c24;
+    --border: #252a35;
+    --accent: #00e5a0;
+    --accent2: #ff6b6b;
+    --accent3: #ffd166;
+    --text: #e8eaf0;
+    --text-muted: #6b7280;
+    --text-dim: #9ca3af;
+    --mono: 'IBM Plex Mono', monospace;
+    --sans: 'Noto Sans TC', sans-serif;
+    --up: #00e5a0;
+    --down: #ff6b6b;
+    --warn: #ffd166;
+    --neutral: #60a5fa;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 14px;
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none; z-index: 9999; opacity: 0.4;
+  }
+  .container { max-width: 1080px; margin: 0 auto; padding: 40px 24px 80px; }
+
+  /* Header */
+  .report-header { border-bottom: 1px solid var(--border); padding-bottom: 28px; margin-bottom: 40px; position: relative; }
+  .report-header::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, #ffd166, #00e5a0, transparent); }
+  .header-meta { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; padding-top: 16px; flex-wrap: wrap; }
+  .tag { font-family: var(--mono); font-size: 10px; padding: 3px 8px; border-radius: 2px; letter-spacing: 0.08em; font-weight: 600; }
+  .tag-region { background: rgba(0,229,160,0.12); color: var(--accent); border: 1px solid rgba(0,229,160,0.3); }
+  .tag-type   { background: rgba(255,209,102,0.1); color: var(--accent3); border: 1px solid rgba(255,209,102,0.25); }
+  .tag-week   { background: rgba(96,165,250,0.1); color: var(--neutral); border: 1px solid rgba(96,165,250,0.25); }
+  .tag-hot    { background: rgba(255,107,107,0.12); color: var(--down); border: 1px solid rgba(255,107,107,0.3); }
+  .report-title { font-size: 26px; font-weight: 900; letter-spacing: -0.02em; color: var(--text); line-height: 1.2; }
+  .report-subtitle { font-family: var(--mono); font-size: 11px; color: var(--text-muted); margin-top: 8px; letter-spacing: 0.05em; }
+
+  /* Songkran banner */
+  .songkran-banner {
+    background: linear-gradient(135deg, rgba(255,209,102,0.08), rgba(0,229,160,0.05));
+    border: 1px solid rgba(255,209,102,0.3);
+    border-radius: 8px;
+    padding: 14px 20px;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .songkran-icon { font-size: 24px; flex-shrink: 0; }
+  .songkran-text { font-size: 13px; color: var(--text-dim); line-height: 1.6; }
+  .songkran-text strong { color: var(--accent3); }
+
+  /* Section */
+  .section { margin-bottom: 48px; animation: fadeUp 0.5s ease both; }
+  .section:nth-child(1) { animation-delay: 0.05s; }
+  .section:nth-child(2) { animation-delay: 0.1s; }
+  .section:nth-child(3) { animation-delay: 0.15s; }
+  .section:nth-child(4) { animation-delay: 0.2s; }
+  .section:nth-child(5) { animation-delay: 0.25s; }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+
+  .section-label {
+    font-family: var(--mono); font-size: 10px; color: var(--accent);
+    letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 16px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+  .section-title { font-size: 18px; font-weight: 700; margin-bottom: 20px; color: var(--text); }
+
+  /* Exec cards */
+  .exec-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
+  @media(max-width:700px){ .exec-grid { grid-template-columns: 1fr 1fr; } }
+  .exec-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 18px 16px; position: relative; overflow: hidden; }
+  .exec-card.positive { border-left: 3px solid var(--up); }
+  .exec-card.negative { border-left: 3px solid var(--down); }
+  .exec-card.warning  { border-left: 3px solid var(--warn); }
+  .exec-card.neutral  { border-left: 3px solid var(--neutral); }
+  .exec-card-label { font-family: var(--mono); font-size: 10px; color: var(--text-muted); letter-spacing: 0.08em; margin-bottom: 6px; }
+  .exec-card-value { font-size: 26px; font-weight: 900; line-height: 1; margin-bottom: 4px; }
+  .exec-card-value.up   { color: var(--up); }
+  .exec-card-value.down { color: var(--down); }
+  .exec-card-value.warn { color: var(--warn); }
+  .exec-card-value.neutral { color: var(--neutral); }
+  .exec-card-desc { font-size: 11px; color: var(--text-dim); line-height: 1.5; }
+
+  .governing-thought { background: linear-gradient(135deg, rgba(255,209,102,0.06), rgba(0,229,160,0.04)); border: 1px solid rgba(255,209,102,0.2); border-radius: 8px; padding: 20px 24px; font-size: 13.5px; line-height: 1.75; color: var(--text); }
+  .governing-thought strong { color: var(--accent3); }
+  .governing-thought em { color: var(--accent); font-style: normal; font-weight: 600; }
+
+  /* Table */
+  .matrix-table { width: 100%; border-collapse: separate; border-spacing: 0; background: var(--surface); border-radius: 8px; overflow: hidden; border: 1px solid var(--border); }
+  .matrix-table thead tr { background: var(--surface2); }
+  .matrix-table th { font-family: var(--mono); font-size: 10px; letter-spacing: 0.08em; color: var(--text-muted); padding: 12px 14px; text-align: right; border-bottom: 1px solid var(--border); white-space: nowrap; }
+  .matrix-table th:first-child { text-align: left; }
+  .matrix-table td { padding: 11px 14px; border-bottom: 1px solid rgba(37,42,53,0.6); font-family: var(--mono); font-size: 12px; text-align: right; vertical-align: middle; }
+  .matrix-table td:first-child { text-align: left; font-family: var(--sans); font-size: 13px; font-weight: 500; color: var(--text); }
+  .matrix-table tbody tr:last-child td { border-bottom: none; }
+  .matrix-table tbody tr:hover td { background: rgba(255,255,255,0.02); }
+
+  /* WoW比較列 高亮 */
+  .matrix-table .row-highlight td { background: rgba(0,229,160,0.03); }
+
+  .delta { display: inline-flex; align-items: center; gap: 2px; font-size: 11px; font-weight: 600; }
+  .delta.up   { color: var(--up); }
+  .delta.down { color: var(--down); }
+  .delta.warn { color: var(--warn); }
+  .delta.neutral { color: var(--neutral); }
+
+  .status-badge { display: inline-block; font-family: var(--mono); font-size: 9px; padding: 2px 6px; border-radius: 2px; letter-spacing: 0.06em; font-weight: 600; white-space: nowrap; }
+  .status-good    { background: rgba(0,229,160,0.12);  color: var(--up);   border: 1px solid rgba(0,229,160,0.3); }
+  .status-bad     { background: rgba(255,107,107,0.12); color: var(--down); border: 1px solid rgba(255,107,107,0.3); }
+  .status-warn    { background: rgba(255,209,102,0.12); color: var(--warn); border: 1px solid rgba(255,209,102,0.3); }
+  .status-critical{ background: rgba(255,107,107,0.2);  color: #ff4444;     border: 1px solid rgba(255,60,60,0.5); }
+
+  /* WoW vs 前週對比區塊 */
+  .wow-compare {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 16px;
+  }
+  .wow-compare-title { font-size: 12px; font-weight: 700; color: var(--text-muted); margin-bottom: 14px; font-family: var(--mono); letter-spacing: 0.06em; }
+  .kpi-row { display: flex; gap: 8px; flex-wrap: wrap; }
+  .kpi-chip {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 10px 14px;
+    flex: 1;
+    min-width: 130px;
+  }
+  .kpi-chip-label { font-family: var(--mono); font-size: 9px; color: var(--text-muted); margin-bottom: 4px; letter-spacing: 0.06em; }
+  .kpi-chip-val { font-size: 18px; font-weight: 900; line-height: 1; }
+  .kpi-chip-sub { font-family: var(--mono); font-size: 10px; color: var(--text-muted); margin-top: 3px; }
+  .kpi-up   .kpi-chip-val { color: var(--up); }
+  .kpi-down .kpi-chip-val { color: var(--down); }
+  .kpi-warn .kpi-chip-val { color: var(--warn); }
+  .kpi-neu  .kpi-chip-val { color: var(--neutral); }
+
+  /* DAU Trend */
+  .trend-chart { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 20px; margin-bottom: 16px; }
+  .trend-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 14px; flex-wrap: wrap; gap: 8px; }
+  .trend-title { font-size: 13px; font-weight: 700; color: var(--text); }
+  .trend-legend { display: flex; gap: 16px; flex-wrap: wrap; }
+  .legend-item { display: flex; align-items: center; gap: 6px; font-family: var(--mono); font-size: 10px; color: var(--text-muted); }
+  .legend-dot { width: 10px; height: 3px; border-radius: 2px; }
+  .bars-wrapper { display: flex; gap: 6px; align-items: flex-end; height: 80px; margin-bottom: 8px; }
+  .bar-group { flex: 1; display: flex; gap: 2px; align-items: flex-end; height: 100%; }
+  .bar-item { flex: 1; border-radius: 2px 2px 0 0; min-width: 4px; }
+  .date-labels { display: flex; gap: 6px; }
+  .date-label { flex: 1; text-align: center; font-family: var(--mono); font-size: 9px; color: var(--text-muted); }
+
+  /* Event attribution */
+  .attr-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 20px; }
+  @media(max-width:640px){ .attr-grid { grid-template-columns: 1fr; } }
+  .event-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 18px; }
+  .event-card.highlight { border-color: rgba(255,209,102,0.35); background: linear-gradient(135deg, rgba(255,209,102,0.05), var(--surface)); }
+  .event-tier { display: inline-flex; align-items: center; gap: 4px; font-family: var(--mono); font-size: 10px; margin-bottom: 10px; }
+  .tier-5 { color: #ff6b6b; } .tier-4 { color: #ffd166; } .tier-3 { color: #06d6a0; } .tier-2 { color: #60a5fa; } .tier-1 { color: #9ca3af; }
+  .event-name { font-size: 14px; font-weight: 700; margin-bottom: 6px; line-height: 1.4; }
+  .event-period { font-family: var(--mono); font-size: 10px; color: var(--text-muted); margin-bottom: 10px; }
+  .event-impact { font-size: 12px; color: var(--text-dim); line-height: 1.65; border-top: 1px solid var(--border); padding-top: 10px; margin-top: 10px; }
+  .event-impact strong { color: var(--text); }
+
+  /* Analysis blocks */
+  .analysis-block { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 22px 24px; margin-bottom: 14px; }
+  .analysis-block h4 { font-size: 14px; font-weight: 700; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .dot-green { background: var(--up); } .dot-red { background: var(--down); } .dot-yellow { background: var(--warn); } .dot-blue { background: var(--neutral); }
+  .analysis-block p { font-size: 13px; color: var(--text-dim); line-height: 1.75; margin-bottom: 8px; }
+  .analysis-block p:last-child { margin-bottom: 0; }
+  .analysis-block p strong { color: var(--text); }
+  .analysis-block p em { color: var(--accent); font-style: normal; font-weight: 600; }
+
+  /* External table */
+  .ext-table { width: 100%; border-collapse: separate; border-spacing: 0; background: var(--surface); border-radius: 8px; overflow: hidden; border: 1px solid var(--border); }
+  .ext-table th { font-family: var(--mono); font-size: 10px; letter-spacing: 0.08em; color: var(--text-muted); padding: 10px 14px; text-align: left; background: var(--surface2); border-bottom: 1px solid var(--border); }
+  .ext-table td { padding: 10px 14px; border-bottom: 1px solid rgba(37,42,53,0.6); font-size: 12px; color: var(--text-dim); vertical-align: top; line-height: 1.6; }
+  .ext-table td:first-child { color: var(--text); font-weight: 600; white-space: nowrap; }
+  .ext-table tbody tr:last-child td { border-bottom: none; }
+
+  /* Action plan */
+  .action-table { width: 100%; border-collapse: separate; border-spacing: 0; background: var(--surface); border-radius: 8px; overflow: hidden; border: 1px solid var(--border); }
+  .action-table th { font-family: var(--mono); font-size: 10px; letter-spacing: 0.08em; color: var(--text-muted); padding: 10px 14px; text-align: left; background: var(--surface2); border-bottom: 1px solid var(--border); }
+  .action-table td { padding: 12px 14px; border-bottom: 1px solid rgba(37,42,53,0.6); font-size: 12px; vertical-align: top; line-height: 1.6; }
+  .action-table tbody tr:last-child td { border-bottom: none; }
+  .priority { display: inline-block; font-family: var(--mono); font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 3px; white-space: nowrap; }
+  .p0 { background: rgba(255,68,68,0.15); color: #ff4444; border: 1px solid rgba(255,68,68,0.35); }
+  .p1 { background: rgba(255,209,102,0.12); color: var(--warn); border: 1px solid rgba(255,209,102,0.3); }
+  .p2 { background: rgba(96,165,250,0.1); color: var(--neutral); border: 1px solid rgba(96,165,250,0.25); }
+
+  /* Continuity note */
+  .cont-note { display: flex; gap: 10px; background: rgba(96,165,250,0.06); border: 1px solid rgba(96,165,250,0.2); border-radius: 6px; padding: 12px 16px; margin-bottom: 16px; }
+  .cont-note-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+  .cont-note-text { font-size: 12px; color: var(--text-dim); line-height: 1.65; }
+  .cont-note-text strong { color: var(--neutral); }
+
+  .caveat { background: rgba(255,209,102,0.06); border: 1px solid rgba(255,209,102,0.2); border-radius: 6px; padding: 12px 16px; font-size: 12px; color: var(--warn); margin-top: 12px; }
+  .caveat strong { color: var(--accent3); }
+
+  hr { border: none; border-top: 1px solid var(--border); margin: 24px 0; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- HEADER -->
+  <header class="report-header">
+    <div class="header-meta">
+      <span class="tag tag-region">🇹🇭 TH 泰國</span>
+      <span class="tag tag-type">週報</span>
+      <span class="tag tag-week">W15 · 2026/4/6–4/12</span>
+      <span class="tag tag-hot">🌊 Songkran 前夕</span>
+    </div>
+    <div class="report-title">泰國 TH 營運分析週報</div>
+    <div class="report-subtitle">
+      CODM TH · 2026/4/6–4/12 vs. 上週 3/30–4/5（WoW）vs. 2025/4/6–4/12（YoY）
+      · 數據來源：《活躍歷史數據.txt》《留存歷史數據.txt》《Active_Events_Log.txt》<br>
+      <span style="color:#ffd166">v2 修正：依更新後《Metric_Definitions.txt》，Returning Users 正名為 Revival Users；C7/C14/C30 口徑補充精確公式，數值不變。</span>
+    </div>
+  </header>
+
+  <!-- Songkran Banner -->
+  <div class="songkran-banner">
+    <div class="songkran-icon">🌊</div>
+    <div class="songkran-text">
+      <strong>本週為 Songkran 潑水節（4/13–4/15）前一週</strong>，同時是 PUBG Mobile JJK 聯名活動最後一週（4/12 結束）。本週數據表現將直接決定下週 Songkran 視窗期能否有效承接反彈動能。
+    </div>
+  </div>
+
+  <!-- 與上週連貫性說明 -->
+  <div class="cont-note">
+    <div class="cont-note-icon">🔗</div>
+    <div class="cont-note-text">
+      <strong>接續 W14（3/30–4/5）預測驗證：</strong>上週報告提出「新進 R2 下滑（4/5 僅 34.7%），若品質持續低迷下週 DAU 可能回落」的警告。本週實際結果：日均 A1 91,771（WoW +3.07%）——DAU <em>並未</em>回落，顯示上週新進流失的衝擊被其他用戶群（回流或活躍留存）所承接；新進 R2 本週回升至均值 41.76%（WoW +2.01pp）。
+    </div>
+  </div>
+
+  <!-- EXECUTIVE SUMMARY -->
+  <div class="section">
+    <div class="section-label">01 &mdash; Executive Summary</div>
+
+    <div class="exec-grid">
+      <div class="exec-card positive">
+        <div class="exec-card-label">DAU 日均 A1 WoW</div>
+        <div class="exec-card-value up">+3.07%</div>
+        <div class="exec-card-desc">本期日均 91,771<br>上週日均 89,038<br>連續第 2 週正成長</div>
+      </div>
+      <div class="exec-card negative">
+        <div class="exec-card-label">DAU 日均 A1 YoY</div>
+        <div class="exec-card-value down">−35.9%</div>
+        <div class="exec-card-desc">去年同期日均 143,089<br>YoY 深衰退持續<br>幅度略小於上週 −37.7%</div>
+      </div>
+      <div class="exec-card positive">
+        <div class="exec-card-label">C7 流失率 WoW</div>
+        <div class="exec-card-value up">−0.76pp</div>
+        <div class="exec-card-desc">本期 35.74%<br>上週 36.50%<br>連續 2 週流失率下行</div>
+      </div>
+      <div class="exec-card positive">
+        <div class="exec-card-label">新進 R2 WoW</div>
+        <div class="exec-card-value up">+2.01pp</div>
+        <div class="exec-card-desc">本期均值 41.76%<br>上週均值 39.74%<br>新進品質修復</div>
+      </div>
+    </div>
+
+    <div class="governing-thought">
+      <strong>總結論：</strong>本週 TH 呈現「穩健爬升 + 留存雙線改善」的正向格局，是近期少數「量與質同步向好」的週次。DAU WoW +3.07% 由 <strong>A Cut Above（Lv5）持續發力 + NieR: Automata 聯名任務（Lv4）+ Featured 高品質歌單 Playlist 雙上線</strong> 共同支撐；C7 WoW −0.76pp 連續第二週下行，配合新進 R2 WoW +2.01pp 的修復，代表<em>用戶品質正在改善</em>。然而 <strong>Revival Users WoW −12.26%</strong> 是最大警示——上週被免費 CP 活動（COD Points Festival）召回的短期復活用戶已快速流失，驗證「獎勵型 Revival」品質偏低的假設。YoY −35.9% 確認結構衰退慣性未解。<strong>下週 Songkran 窗口（4/13–4/15）+ PUBG JJK 結束後注意力真空是本年度最關鍵的反彈機會</strong>，本週穩定的基盤為其提供了較好的起跳點。
+    </div>
+  </div>
+
+  <!-- COMPARATIVE MATRIX -->
+  <div class="section">
+    <div class="section-label">02 &mdash; Comparative Matrix（對比矩陣）</div>
+
+    <!-- KPI chips -->
+    <div class="wow-compare">
+      <div class="wow-compare-title">關鍵 KPI 速覽 — 本期 vs 上週 vs 去年同期</div>
+      <div class="kpi-row">
+        <div class="kpi-chip kpi-up">
+          <div class="kpi-chip-label">DAU 日均 A1</div>
+          <div class="kpi-chip-val">91,771</div>
+          <div class="kpi-chip-sub">WoW +3.07% ▲ ｜ YoY −35.9% ▼</div>
+        </div>
+        <div class="kpi-chip kpi-up">
+          <div class="kpi-chip-label">A7 週末末值</div>
+          <div class="kpi-chip-val">202,262</div>
+          <div class="kpi-chip-sub">WoW +0.54% ▲ ｜ YoY −32.9% ▼</div>
+        </div>
+        <div class="kpi-chip kpi-down">
+          <div class="kpi-chip-label">日均 NU</div>
+          <div class="kpi-chip-val">2,179</div>
+          <div class="kpi-chip-sub">WoW −1.97% ▼ ｜ YoY −21.6% ▼</div>
+        </div>
+        <div class="kpi-chip kpi-down">
+          <div class="kpi-chip-label">日均 Revival</div>
+          <div class="kpi-chip-val">5,818</div>
+          <div class="kpi-chip-sub">WoW −12.26% ▼ ｜ YoY −27.24% ▼</div>
+        </div>
+        <div class="kpi-chip kpi-up">
+          <div class="kpi-chip-label">C7 流失率</div>
+          <div class="kpi-chip-val">35.74%</div>
+          <div class="kpi-chip-sub">WoW −0.76pp ▲ ｜ YoY +1.51pp ▼</div>
+        </div>
+        <div class="kpi-chip kpi-up">
+          <div class="kpi-chip-label">新進 R2</div>
+          <div class="kpi-chip-val">41.76%</div>
+          <div class="kpi-chip-sub">WoW +2.01pp ▲ ｜ YoY −5.89pp ▼</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DAU 趨勢圖 -->
+    <div class="trend-chart">
+      <div class="trend-header">
+        <div class="trend-title">日均 A1 趨勢：本期（4/6–4/12）vs 上週（3/30–4/5）</div>
+        <div class="trend-legend">
+          <div class="legend-item"><div class="legend-dot" style="background:var(--accent3)"></div>本期 W15</div>
+          <div class="legend-item"><div class="legend-dot" style="background:rgba(0,229,160,0.4)"></div>上週 W14</div>
+        </div>
+      </div>
+      <!--
+        上週 W14：87524,85846,86457,87445,88637,93781,93576 → max 93781
+        本期 W15：91583,91601,92745,92159,91124,91208,91974 → max 92745
+        Scale: /95000
+        上週: 92%,90%,91%,92%,93%,99%,98%
+        本週: 96%,96%,98%,97%,96%,96%,97%
+      -->
+      <div class="bars-wrapper">
+        <div class="bar-group"><div class="bar-item" style="background:rgba(0,229,160,0.3);height:92%"></div><div class="bar-item" style="background:var(--accent3);height:96%"></div></div>
+        <div class="bar-group"><div class="bar-item" style="background:rgba(0,229,160,0.3);height:90%"></div><div class="bar-item" style="background:var(--accent3);height:96%"></div></div>
+        <div class="bar-group"><div class="bar-item" style="background:rgba(0,229,160,0.3);height:91%"></div><div class="bar-item" style="background:var(--accent3);height:98%"></div></div>
+        <div class="bar-group"><div class="bar-item" style="background:rgba(0,229,160,0.3);height:92%"></div><div class="bar-item" style="background:var(--accent3);height:97%"></div></div>
+        <div class="bar-group"><div class="bar-item" style="background:rgba(0,229,160,0.3);height:93%"></div><div class="bar-item" style="background:var(--accent3);height:96%"></div></div>
+        <div class="bar-group"><div class="bar-item" style="background:rgba(0,229,160,0.3);height:99%"></div><div class="bar-item" style="background:var(--accent3);height:96%"></div></div>
+        <div class="bar-group"><div class="bar-item" style="background:rgba(0,229,160,0.3);height:98%"></div><div class="bar-item" style="background:var(--accent3);height:97%"></div></div>
+      </div>
+      <div class="date-labels">
+        <div class="date-label">3/30<br>4/6</div>
+        <div class="date-label">3/31<br>4/7</div>
+        <div class="date-label">4/1<br>4/8</div>
+        <div class="date-label">4/2<br>4/9</div>
+        <div class="date-label">4/3<br>4/10</div>
+        <div class="date-label">4/4<br>4/11</div>
+        <div class="date-label">4/5<br>4/12</div>
+      </div>
+      <div style="font-family:var(--mono);font-size:10px;color:var(--text-muted);margin-top:10px;">
+        本週特徵：DAU 週間分佈明顯趨於平穩（91K–92K 窄帶），消除了上週末衝高（93K+）後的週中下陷。整週波動幅度僅 ±800，為近 6 週最窄區間。
+      </div>
+    </div>
+
+    <!-- 主矩陣表 -->
+    <table class="matrix-table">
+      <thead>
+        <tr>
+          <th>指標</th>
+          <th>本期 4/6–4/12</th>
+          <th>上週 3/30–4/5</th>
+          <th>WoW</th>
+          <th>去年同期 2025</th>
+          <th>YoY</th>
+          <th>狀態</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="row-highlight">
+          <td>日均 DAU（A1）</td>
+          <td>91,771</td>
+          <td>89,038</td>
+          <td><span class="delta up">▲ +3.07%</span></td>
+          <td>143,089</td>
+          <td><span class="delta down">▼ −35.92%</span></td>
+          <td><span class="status-badge status-warn">WoW 續漲 / YoY 深衰退</span></td>
+        </tr>
+        <tr>
+          <td>A7（週末末值）</td>
+          <td>202,262</td>
+          <td>201,173</td>
+          <td><span class="delta up">▲ +0.54%</span></td>
+          <td>301,370</td>
+          <td><span class="delta down">▼ −32.89%</span></td>
+          <td><span class="status-badge status-bad">YoY 持續衰退</span></td>
+        </tr>
+        <tr>
+          <td>日均 NU（新進用戶）</td>
+          <td>2,179</td>
+          <td>2,223</td>
+          <td><span class="delta down">▼ −1.97%</span></td>
+          <td>2,771</td>
+          <td><span class="delta down">▼ −21.63%</span></td>
+          <td><span class="status-badge status-warn">WoW 微降（免費CP效應消退）</span></td>
+        </tr>
+        <tr>
+          <td>日均 Revival Users</td>
+          <td>5,818</td>
+          <td>6,630</td>
+          <td><span class="delta down">▼ −12.26%</span></td>
+          <td>7,993</td>
+          <td><span class="delta down">▼ −27.24%</span></td>
+          <td><span class="status-badge status-critical">⚠ 回流大幅回落</span></td>
+        </tr>
+        <tr class="row-highlight">
+          <td>C7（7 日流失率）</td>
+          <td>35.74%</td>
+          <td>36.50%</td>
+          <td><span class="delta up">▼ −0.76pp</span></td>
+          <td>34.21%</td>
+          <td><span class="delta down">▲ +1.53pp</span></td>
+          <td><span class="status-badge status-good">✓ 連 2 週下行</span></td>
+        </tr>
+        <tr>
+          <td>C14（14 日流失率）</td>
+          <td>42.86%</td>
+          <td>43.50%</td>
+          <td><span class="delta up">▼ −0.64pp</span></td>
+          <td>41.15%</td>
+          <td><span class="delta down">▲ +1.71pp</span></td>
+          <td><span class="status-badge status-warn">WoW 改善 / YoY 仍惡化</span></td>
+        </tr>
+        <tr>
+          <td>C30（30 日流失率）</td>
+          <td>50.8% → 50.6%（週間下行）</td>
+          <td>51.0% → 50.8%</td>
+          <td><span class="delta up">▼ 持續下行</span></td>
+          <td>46.9% → 46.7%</td>
+          <td><span class="delta down">▲ +3.9pp</span></td>
+          <td><span class="status-badge status-warn">WoW 改善 / YoY 差距大</span></td>
+        </tr>
+        <tr class="row-highlight">
+          <td>活躍 R2（次日留存）</td>
+          <td>67.08%<br><span style="color:var(--text-muted);font-size:10px">5 日均值（4/11–4/12 尚不完整）</span></td>
+          <td>65.94%</td>
+          <td><span class="delta up">▲ +1.15pp</span></td>
+          <td>≈ 68.9%</td>
+          <td><span class="delta down">▼ ≈ −1.8pp</span></td>
+          <td><span class="status-badge status-good">✓ WoW 回升</span></td>
+        </tr>
+        <tr>
+          <td>活躍 R7（7 日留存）</td>
+          <td colspan="3" style="color:var(--text-muted);text-align:center;font-size:11px">⏳ 資料窗口未完整（4/6 起需至 4/13 始可確認）— 本週數據待下週補錄</td>
+          <td>≈ 55.1%</td>
+          <td>—</td>
+          <td><span class="status-badge status-warn">待觀察</span></td>
+        </tr>
+        <tr class="row-highlight">
+          <td>新進 R2（新用戶次日留存）</td>
+          <td>41.76%（週均）<br><span style="font-size:10px;color:var(--text-muted)">最高 4/11：45.2%</span></td>
+          <td>39.74%（週均）</td>
+          <td><span class="delta up">▲ +2.01pp</span></td>
+          <td>47.64%（週均）</td>
+          <td><span class="delta down">▼ −5.89pp</span></td>
+          <td><span class="status-badge status-warn">WoW 修復 / YoY 仍落後</span></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="caveat">
+      <strong>數據說明：</strong>日均值計算自《活躍歷史數據.txt》（4/6–4/12 vs 3/30–4/5 vs 2025 同期）；活躍 R2 來自《留存歷史數據.txt》，4/6–4/10 共 5 天可用數據，4/11–4/12 尚處於觀察窗口。活躍 R7（4/6 起需 7 天後方可確認）、YoY 留存以 2025 對應日期推算。<br><strong>指標口徑（依更新版 Metric_Definitions）：</strong>C7(%) = A7[t-7] 中不在今日 A7 的用戶數 ÷ A7[t-7] 用戶數；C14/C30 同理，分母分別為 A14[t-14]、A30[t-30]。Revival Users = 一段時間不活躍後今日重新活躍的用戶（對應檔案 Returning_Users 欄位）。
+    </div>
+  </div>
+
+  <!-- ATTRIBUTION -->
+  <div class="section">
+    <div class="section-label">03 &mdash; Data-Driven Attribution（數據歸因）</div>
+    <div class="section-title">3.1 活動歸因分析</div>
+
+    <div class="attr-grid">
+      <!-- A Cut Above Lv5 -->
+      <div class="event-card highlight">
+        <div class="event-tier tier-5">★★★★★ Lv 5 — 核心主題</div>
+        <div class="event-name">A Cut Above（刀形主題系列）</div>
+        <div class="event-period">2026/4/2 – 5/6 ｜ 主題活動（持續第 2 週）</div>
+        <div class="event-impact">
+          <strong>歸因指標：</strong> DAU WoW +3.07%、週間 DAU 窄幅平穩（91K–92K）<br>
+          作為全週唯一 Lv5 持續性活動，A Cut Above 提供了穩定的內容參與場景，使週間 DAU 不再出現上週中段的谷底（上週 3/31 低至 85,846），本週最低點 4/10 仍達 91,124——較上週周間低點高出 6.2%。活動的任務系統形成「每日登入誘因」，有效支撐了 C7 連續第二週下行。
+        </div>
+      </div>
+
+      <!-- NieR Automata Lv4 -->
+      <div class="event-card">
+        <div class="event-tier tier-4">★★★★ Lv 4 — IP 聯名</div>
+        <div class="event-name">NieR: Automata（IP 聯名 Guided Missions）<br>+ NieR: Automata BGM（4/10 起）</div>
+        <div class="event-period">4/3–4/17（主任務）｜ 4/10–4/17（BGM，Lv3）</div>
+        <div class="event-impact">
+          <strong>歸因指標：</strong> 新進 R2 WoW +2.01pp（從 39.74% 升至 41.76%）、C7 WoW −0.76pp<br>
+          NieR 聯名任務持續提供回訪誘因；4/10 起 BGM（Lv3）疊加上線，強化了沉浸感。新進 R2 的改善（尤其 4/11：45.2%）時序上與 BGM 上線吻合，顯示音樂主題對新進用戶的次日留存有一定吸引力。需注意：NieR IP 在 TH 共鳴度有限，效果以中頻玩家（C/D 池）為主，對 YoY 結構衰退無根本改善能力。
+        </div>
+      </div>
+
+      <!-- Featured Playlists Lv2 x2 -->
+      <div class="event-card">
+        <div class="event-tier tier-2">★★ Lv 2 — 高品質歌單（雙上線）</div>
+        <div class="event-name">Featured-Payout S&amp;D<br>+ Featured-Cranked</div>
+        <div class="event-period">4/7–4/13 ｜ High Quality Playlist（雙項並行）</div>
+        <div class="event-impact">
+          <strong>歸因指標：</strong> 週間 DAU 平穩（4/7–4/9：91K–92K 持穩）<br>
+          兩個 Lv2 Featured Playlist 在本週核心段並行，提供了多元模式選擇，防止了 MP 偏好玩家（TH MP 佔比 ≈ 52.9%）因內容單調而流失。與 C14 WoW −0.64pp 改善相呼應，代表中頻玩家的 14 日黏著度有所提升。
+        </div>
+      </div>
+
+      <!-- Springtime Bingo Lv4 -->
+      <div class="event-card">
+        <div class="event-variant">
+          <div class="event-tier tier-4">★★★★ Lv 4 — 季節活動</div>
+          <div class="event-name">Springtime Bingo（春日賓果）</div>
+          <div class="event-period">2026/4/9 – 4/22 ｜ 季節主題活動（本週起）</div>
+        </div>
+        <div class="event-impact">
+          <strong>歸因指標：</strong> 4/9 後 DAU 維持 91K+，新進 R2 4/9：41.1%→4/11：45.2%<br>
+          4/9 起上線的 Lv4 賓果活動，為週後段（4/9–4/12）提供了額外的參與層次。賓果機制天然形成「每日完成格子」的登入誘因，有助於強化上週 R7 留存的延續。雖然本週數據窗口有限，但 4/11 新進 R2 跳升至 45.2%（週高點）時序上與其上線第三天吻合。
+        </div>
+      </div>
+
+      <!-- Alcatraz BR Lv2 -->
+      <div class="event-card">
+        <div class="event-tier tier-2">★★ Lv 2 — BR 模式</div>
+        <div class="event-name">Alcatraz（BR 模式）</div>
+        <div class="event-period">4/9 – 4/22 ｜ BR Map（本週起）</div>
+        <div class="event-impact">
+          <strong>歸因指標：</strong> 4/8 A1 = 92,745（週高點），與 Arena 2.0 末尾+Alcatraz 銜接期吻合<br>
+          BR-Arena 2.0（至 4/8）→ Alcatraz（4/9 起）的地圖輪換換回了新鮮感。TH BR 偏好玩家佔比 ≈ 21.5%，地圖切換通常帶來短期峰值；4/8（A1 = 92,745，週最高）正好是 Arena 2.0 最後一天，確認「地圖末日衝高」效應成立。
+        </div>
+      </div>
+
+      <!-- Double Secret Cache + Weekend Bonus 4 -->
+      <div class="event-card">
+        <div class="event-tier tier-1">★ Lv 1 — 週末加成疊加</div>
+        <div class="event-name">Weekend Bonus 4<br>+ Double Secret Cache Drops（4/11–4/12）<br>+ BP XP UP! 2（4/6–4/9，Lv2）</div>
+        <div class="event-period">4/11–4/12（Weekend Bonus 4 + Double Cache）｜ 4/6–4/9（BP XP UP! 2）</div>
+        <div class="event-impact">
+          <strong>歸因指標：</strong> 4/11 A1 = 91,208 / 4/12 A1 = 91,974（週末維持穩健）<br>
+          上週週末 Goliath Clash 帶來 93K+ 高峰；本週無錦標賽加持，週末仍維持 91K+ 代表底盤更穩健。BP XP UP! 2（Lv2）在週初（4/6–4/9）提供了額外的 Battle Pass 進度加速誘因，與 A7 WoW +0.54% 正向呼應。
+        </div>
+      </div>
+    </div>
+
+    <!-- Analysis -->
+    <div class="analysis-block">
+      <h4><span class="dot dot-green"></span>正面訊號①：DAU 基盤升格——從「週末衝高」到「週間穩健」</h4>
+      <p>上週 W14 的 DAU 高點靠週末 Goliath Clash 推升（4/4–4/5：93K+），週間最低跌至 85,846。本週無大型錦標賽，卻將日均維持在 91,124–92,745 的窄帶，週間最低點仍比上週最低高出 <strong>+6.2%</strong>。這代表 A Cut Above + Springtime Bingo + NieR 的「多活動疊加」成功將 DAU <em>底板</em>拉高，而非僅靠週末脈衝——這是更健康的用戶結構改善訊號。</p>
+    </div>
+
+    <div class="analysis-block">
+      <h4><span class="dot dot-red"></span>警示訊號：Revival Users −12.26%——免費 CP 短期復活已退潮</h4>
+      <p>上週 W14 Revival Users 日均 6,630（WoW +22%），本週驟降至 5,818（WoW −12.26%）。這直接驗證了上週報告的預測：<strong>COD Points Festival 免費 CP 所召回的用戶為「獎勵型短回流」</strong>，在獎勵領取後快速流失。Revival Users YoY −27.24% 更說明這並非個別週的波動，而是長期 Revival 池萎縮的系統問題。<em>若無持續性高誘因內容，Revival 難以維持在 6K+ 以上。</em></p>
+    </div>
+
+    <div class="analysis-block">
+      <h4><span class="dot dot-green"></span>正面訊號②：C7 + C14 雙線 WoW 改善，流失結構持續優化</h4>
+      <p>C7 WoW −0.76pp（36.50%→35.74%），C14 WoW −0.64pp（43.50%→42.86%），連續兩週雙線改善。結合活躍 R2 WoW +1.15pp，代表<strong>本週留存品質是近 6 週以來最佳</strong>。歸因路徑：A Cut Above 任務系統的「每日小目標」機制 + Springtime Bingo 的格子完成誘因，共同延長了玩家在 7–14 天內的回訪動機。但 <em>C14 YoY 仍 +1.71pp</em>，長期留存問題非單週活動所能根治。</p>
+    </div>
+
+    <div class="analysis-block">
+      <h4><span class="dot dot-yellow"></span>關鍵數據：新進 R2 YoY −5.89pp——獲客品質長期落後去年</h4>
+      <p>本週新進 R2 均值 41.76%（WoW +2.01pp 修復），但對比去年同期 47.64%，<strong>YoY 仍落後 5.89pp</strong>。去年同期正值 Songkran 前夕，玩家參與度本就較高；今年在相同時間點，新進品質明顯不及。需觀察下週 Songkran 活動是否能帶動新進 R2 超越去年同期（目標 48%+）作為關鍵驗證指標。</p>
+    </div>
+
+    <hr>
+    <div class="section-title" style="margin-top:24px;">3.2 外部背景觀點</div>
+
+    <table class="ext-table">
+      <thead>
+        <tr>
+          <th>外部因素</th>
+          <th>事件</th>
+          <th>日期</th>
+          <th>對 TH 的影響評估</th>
+          <th>與數據吻合度</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>🌊 Songkran 潑水節（前夕）</td>
+          <td>泰國最重要法定節日，4/13 開始放假</td>
+          <td>4/13–4/15（下週）</td>
+          <td>本週為節前蓄力期；玩家可能提前減少遊戲時間安排活動，或延長遊戲準備節日內容</td>
+          <td>📌 本週 DAU 平穩偏強（91K+），未見節前下跌，玩家仍正常活躍</td>
+        </tr>
+        <tr>
+          <td>🎮 競品：PUBG Mobile JJK</td>
+          <td>JJK 聯名最終週（4/12 活動結束）</td>
+          <td>3/13–4/12</td>
+          <td>本週為競品壓力最高峰（JJK 最後衝刺），玩家回流 CODM 的時機窗口於 4/13+ 開啟</td>
+          <td>✅ 本週 DAU 仍正成長（+3.07%），說明 JJK 最終衝刺期未對 CODM 造成額外衝擊</td>
+        </tr>
+        <tr>
+          <td>🎌 競品：MLBB Naruto 2.0</td>
+          <td>Naruto 2.0 聯名持續（至 5/10）</td>
+          <td>3/27–5/10</td>
+          <td>持續分流；TH 對 Naruto IP 接受度高，主要影響 C14–C30 的長期留存</td>
+          <td>⚠️ C14 YoY +1.71pp 的惡化部分可能與 MLBB 長期分流相關</td>
+        </tr>
+        <tr>
+          <td>🏫 泰國暑假</td>
+          <td>暑假持續中（至 ~5/5）</td>
+          <td>3/15–5/5</td>
+          <td>暑假學生有更多遊戲時間；但 3 月分析已確認暑假紅利失效，期望不應過高</td>
+          <td>⚠️ 本週 DAU 正成長但幅度有限（+3%），暑假自然流量貢獻仍不明顯</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="caveat" style="background:rgba(0,229,160,0.05);border-color:rgba(0,229,160,0.15);color:var(--text-dim)">
+      <strong style="color:var(--accent)">外部觀點聲明：</strong>以上外部市場因素僅作為「背景解釋」，輔助數據歸因，不作為指標數值計算依據。所有 WoW / YoY 數值均出自內部檔案數據。
+    </div>
+  </div>
+
+  <!-- ACTION PLAN -->
+  <div class="section">
+    <div class="section-label">04 &mdash; Action Plan（行動建議）</div>
+
+    <table class="action-table">
+      <thead>
+        <tr>
+          <th style="width:60px">優先序</th>
+          <th>行動項目</th>
+          <th style="width:100px">Owner</th>
+          <th style="width:120px">Timeline</th>
+          <th>數據依據 / 外部語境</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="priority p0">P0</span></td>
+          <td>
+            <strong>🌊 Songkran 活動執行確認（4/13 起）</strong><br>
+            <span style="color:var(--text-muted);font-size:11px">確認 Songkran 主題活動已於 4/13 如期上線，涵蓋 10–14 天覆蓋窗口（至 4/22–4/26）。活動設計應包含每日登入遞進獎勵（強化 R7）+ 組隊機制（降低 C7）。若尚未確認，立即升為緊急事項</span>
+          </td>
+          <td style="color:var(--text-dim)">活躍組 + 行銷</td>
+          <td style="color:#ff4444;font-family:var(--mono);font-size:11px">4/13 上線確認</td>
+          <td style="color:var(--text-dim);font-size:11px">PUBG JJK 4/12 結束；Songkran 為 TH 全年最大節日；本週基盤 91K+ 提供較好起跳點</td>
+        </tr>
+        <tr>
+          <td><span class="priority p0">P0</span></td>
+          <td>
+            <strong>監測 PUBG JJK 結束後（4/13+）TH DAU 自然回流</strong><br>
+            <span style="color:var(--text-muted);font-size:11px">設定 4/13–4/15 每日 DAU 監測基線（目標 >95K），確認競品壓力解除後是否出現自然回流效應。若 Songkran 期間 DAU 未突破 95K，啟動緊急推播或額外獎勵干預</span>
+          </td>
+          <td style="color:var(--text-dim)">活躍組 + 數據</td>
+          <td style="color:#ff4444;font-family:var(--mono);font-size:11px">4/13–4/15 即時監控</td>
+          <td style="color:var(--text-dim);font-size:11px">3 月分析預測 JJK 結束後有自然回流機會；本週 Revival −12.26% 代表回流池仍有待激活存量</td>
+        </tr>
+        <tr>
+          <td><span class="priority p1">P1</span></td>
+          <td>
+            <strong>補錄 W15 活躍 R7（4/13 後可用）</strong><br>
+            <span style="color:var(--text-muted);font-size:11px">本週 4/6 起的 R7 需至 4/13 才可確認。補錄後核查：① 是否改善（WoW vs W14 的 54.66%）② YoY 是否縮窄差距（去年同期 ≈ 55.1%）作為下週週報的核心驗證數據</span>
+          </td>
+          <td style="color:var(--text-dim)">數據</td>
+          <td style="color:var(--warn);font-family:var(--mono);font-size:11px">4/13 後補入週報</td>
+          <td style="color:var(--text-dim);font-size:11px">活躍 R2 WoW +1.15pp 已先行改善，R7 應有機會跟進；C7 連 2 週下行亦為正向先行指標</td>
+        </tr>
+        <tr>
+          <td><span class="priority p1">P1</span></td>
+          <td>
+            <strong>Revival Users（不活躍回流）萎縮干預策略評估</strong><br>
+            <span style="color:var(--text-muted);font-size:11px">Revival WoW −12.26%、YoY −27.24%，代表長期回流池正在萎縮。評估：① COD Points Festival Mainstage（至 5/5）能否設計「週間回流推播機制」維持 Revival 在 6K+ ② 在 Songkran 活動中加入「沉睡用戶喚醒禮包」</span>
+          </td>
+          <td style="color:var(--text-dim)">活躍組</td>
+          <td style="color:var(--warn);font-family:var(--mono);font-size:11px">4/16 前提案</td>
+          <td style="color:var(--text-dim);font-size:11px">Revival YoY −27.24% 是本週最大結構警示；COD Points Festival Mainstage 至 5/5 仍有 3 週窗口</td>
+        </tr>
+        <tr>
+          <td><span class="priority p2">P2</span></td>
+          <td>
+            <strong>新進 R2 YoY −5.89pp 追蹤：Songkran 新進品質目標設定</strong><br>
+            <span style="color:var(--text-muted);font-size:11px">以去年 Songkran 期間（4/13–4/15, 2025）的新進 R2 值（預期 47–49%）作為本週目標基準；若本週新進 R2 能突破 45%，視為結構改善的有效訊號</span>
+          </td>
+          <td style="color:var(--text-dim)">活躍組 + 數據</td>
+          <td style="color:var(--neutral);font-family:var(--mono);font-size:11px">4/15 出初步驗證</td>
+          <td style="color:var(--text-dim);font-size:11px">本週新進 R2 均值 41.76%（YoY 落後 5.89pp）；Songkran 高關注度可能帶動新進品質提升</td>
+        </tr>
+        <tr>
+          <td><span class="priority p2">P2</span></td>
+          <td>
+            <strong>NieR: Automata 聯名效果 4/17 結束後接檔評估</strong><br>
+            <span style="color:var(--text-muted);font-size:11px">NieR 主任務 4/17 結束，BGM 同日結束。4/18 起的「內容真空」可能造成 C7 反彈，需確認 Nowhere to Hide（Lv2，4/14+）與 Swords &amp; Stones（Lv2，4/14+）能否接棒填補 MP 玩家的參與場景</span>
+          </td>
+          <td style="color:var(--text-dim)">活躍組</td>
+          <td style="color:var(--neutral);font-family:var(--mono);font-size:11px">4/14 確認接棒活動</td>
+          <td style="color:var(--text-dim);font-size:11px">C7 連 2 週下行；需避免 NieR 結束造成 4/18 後 C7 反彈</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Summary callout -->
+    <div class="analysis-block" style="margin-top:20px;background:linear-gradient(135deg,rgba(255,209,102,0.06),rgba(0,229,160,0.04));border-color:rgba(255,209,102,0.2)">
+      <h4><span class="dot dot-yellow"></span>下週（W16 4/13–4/19）關鍵監測清單</h4>
+      <p>
+        ① <strong>Songkran DAU 目標</strong>：4/13–4/15 日均是否突破 95K（去年 Songkran 期間 TH DAU ≈ 130K+，今年結構衰退後保守目標設 95K）<br>
+        ② <strong>PUBG JJK 結束後自然回流</strong>：4/13–4/15 Revival Users 是否回升至 7K+ 以上<br>
+        ③ <strong>W15 活躍 R7 補錄</strong>：4/13 可確認，目標 ≥ 55%<br>
+        ④ <strong>新進 R2 突破目標</strong>：Songkran 期間新進 R2 是否能達 45%+<br>
+        ⑤ <strong>NieR 結束後 C7 監測</strong>：4/18 起 C7 是否反彈（警戒線 37%）
+      </p>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
